@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrintFriendly - Newsletter to Magazine PDF</title>
+    <style>
+        :root {
+            --color-primary: #2c3e50;
+            --color-accent: #e74c3c;
+            --color-text: #1a1a1a;
+            --color-muted: #666666;
+            --color-border: #e0e0e0;
+            --color-bg: #ffffff;
+            --color-bg-alt: #f8f9fa;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--color-text);
+            background: var(--color-bg);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .tagline {
+            color: var(--color-muted);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--color-text);
+        }
+
+        .label-hint {
+            font-weight: 400;
+            color: var(--color-muted);
+            font-size: 0.875rem;
+        }
+
+        input[type="url"],
+        input[type="text"] {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="url"]:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .option-group {
+            background: var(--color-bg-alt);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .option-group h3 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .radio-option input {
+            accent-color: var(--color-primary);
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .checkbox-option input {
+            accent-color: var(--color-primary);
+            width: 16px;
+            height: 16px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            background: var(--color-primary);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        button[type="submit"]:hover {
+            background: #1a252f;
+        }
+
+        button[type="submit"]:active {
+            transform: scale(0.98);
+        }
+
+        button[type="submit"]:disabled {
+            background: var(--color-muted);
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1.5rem;
+            background: var(--color-bg-alt);
+            border-radius: 8px;
+            margin-top: 1.5rem;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--color-border);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            display: none;
+            padding: 1rem;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            color: #dc2626;
+            margin-top: 1.5rem;
+        }
+
+        .error.active {
+            display: block;
+        }
+
+        .success {
+            display: none;
+            padding: 1.5rem;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            color: #166534;
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .success.active {
+            display: block;
+        }
+
+        .success h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: var(--color-muted);
+            font-size: 0.875rem;
+        }
+
+        footer a {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>PrintFriendly</h1>
+            <p class="tagline">Convert newsletters to magazine-quality PDFs</p>
+        </header>
+
+        <main>
+            <div class="card">
+                <form id="convert-form" action="/convert" method="POST">
+                    <div class="form-group">
+                        <label for="url">
+                            Article URL
+                            <span class="label-hint">- paste a newsletter or article link</span>
+                        </label>
+                        <input
+                            type="url"
+                            id="url"
+                            name="url"
+                            placeholder="https://newsletter.example.com/article"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <div class="options">
+                            <div class="option-group">
+                                <h3>Layout Style</h3>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="style" value="magazine" checked>
+                                        Magazine
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="style" value="minimal">
+                                        Minimal
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="option-group">
+                                <h3>Options</h3>
+                                <div class="radio-group">
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="include_images" value="true" checked>
+                                        Include images
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="include_pull_quotes" value="true" checked>
+                                        Pull quotes
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submit-btn">
+                        Generate PDF
+                    </button>
+                </form>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <span>Generating your PDF...</span>
+                </div>
+
+                <div class="error" id="error">
+                    <strong>Error:</strong> <span id="error-message"></span>
+                </div>
+
+                <div class="success" id="success">
+                    <h3>PDF Generated!</h3>
+                    <p>Your download should start automatically.</p>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>
+                PrintFriendly v{{ version }} &middot;
+                <a href="https://github.com/printfriendly/printfriendly">GitHub</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const form = document.getElementById('convert-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const errorMessage = document.getElementById('error-message');
+        const success = document.getElementById('success');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Reset states
+            error.classList.remove('active');
+            success.classList.remove('active');
+            loading.classList.add('active');
+            submitBtn.disabled = true;
+
+            try {
+                const formData = new FormData(form);
+
+                // Handle unchecked checkboxes
+                if (!formData.has('include_images')) {
+                    formData.set('include_images', 'false');
+                }
+                if (!formData.has('include_pull_quotes')) {
+                    formData.set('include_pull_quotes', 'false');
+                }
+
+                const response = await fetch('/convert', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.detail || 'Failed to generate PDF');
+                }
+
+                // Get filename from Content-Disposition header
+                const disposition = response.headers.get('Content-Disposition');
+                let filename = 'article.pdf';
+                if (disposition) {
+                    const match = disposition.match(/filename="(.+)"/);
+                    if (match) filename = match[1];
+                }
+
+                // Download the PDF
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                success.classList.add('active');
+
+            } catch (err) {
+                errorMessage.textContent = err.message;
+                error.classList.add('active');
+            } finally {
+                loading.classList.remove('active');
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

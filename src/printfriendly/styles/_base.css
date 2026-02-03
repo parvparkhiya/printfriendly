@@ -1,0 +1,275 @@
+/* ==========================================================================
+   PrintFriendly Base Styles
+   Shared foundation for all style variants
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   CSS Reset & Box Sizing
+   -------------------------------------------------------------------------- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Page Setup - A4 Dimensions
+   -------------------------------------------------------------------------- */
+@page {
+    size: A4;
+    margin: 20mm 25mm 20mm 15mm; /* top, outside, bottom, inside (binding) */
+
+    @top-left {
+        content: string(source-name);
+        font-family: 'Inter', sans-serif;
+        font-size: 8pt;
+        color: #666666;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    @top-right {
+        content: "Page " counter(page);
+        font-family: 'Inter', sans-serif;
+        font-size: 8pt;
+        color: #666666;
+    }
+
+    @bottom-center {
+        content: "";
+        border-top: 0.5pt solid #e0e0e0;
+        width: 100%;
+    }
+}
+
+@page :first {
+    margin-top: 15mm;
+
+    @top-left {
+        content: none;
+    }
+
+    @top-right {
+        content: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Root Variables
+   -------------------------------------------------------------------------- */
+:root {
+    /* Colors */
+    --color-body: #1a1a1a;
+    --color-headline: #2c3e50;
+    --color-accent: #e74c3c;
+    --color-accent-alt: #3498db;
+    --color-caption: #666666;
+    --color-divider: #e0e0e0;
+    --color-quote-mark: #dddddd;
+    --color-background: #ffffff;
+
+    /* Typography Scale */
+    --font-size-kicker: 10pt;
+    --font-size-headline: 36pt;
+    --font-size-deck: 14pt;
+    --font-size-byline: 9pt;
+    --font-size-body: 11pt;
+    --font-size-pull-quote: 18pt;
+    --font-size-subheading: 14pt;
+    --font-size-caption: 8pt;
+
+    /* Line Heights */
+    --line-height-body: 1.6;
+    --line-height-headline: 1.1;
+    --line-height-deck: 1.4;
+
+    /* Spacing */
+    --spacing-paragraph: 1em;
+    --spacing-section: 2em;
+}
+
+/* --------------------------------------------------------------------------
+   Typography Base
+   -------------------------------------------------------------------------- */
+html {
+    font-size: 11pt;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: 'Source Serif 4', 'Source Serif Pro', Georgia, serif;
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+    color: var(--color-body);
+    background: var(--color-background);
+}
+
+/* --------------------------------------------------------------------------
+   Headings
+   -------------------------------------------------------------------------- */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: var(--color-headline);
+    break-after: avoid;
+    page-break-after: avoid;
+}
+
+/* --------------------------------------------------------------------------
+   Paragraph & Text
+   -------------------------------------------------------------------------- */
+p {
+    margin-bottom: var(--spacing-paragraph);
+    orphans: 3;
+    widows: 3;
+    text-align: justify;
+    hyphens: auto;
+}
+
+p:last-child {
+    margin-bottom: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Links
+   -------------------------------------------------------------------------- */
+a {
+    color: var(--color-accent-alt);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Print: show URL after link text */
+@media print {
+    a[href^="http"]::after {
+        content: none; /* Disabled for cleaner look */
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Images & Figures
+   -------------------------------------------------------------------------- */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+figure {
+    margin: 0;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+figcaption {
+    font-family: 'Inter', sans-serif;
+    font-size: var(--font-size-caption);
+    font-style: italic;
+    color: var(--color-caption);
+    margin-top: 0.5em;
+    line-height: 1.4;
+}
+
+/* --------------------------------------------------------------------------
+   Blockquotes
+   -------------------------------------------------------------------------- */
+blockquote {
+    margin: var(--spacing-paragraph) 0;
+    padding-left: 1em;
+    border-left: 3px solid var(--color-divider);
+    font-style: italic;
+}
+
+/* --------------------------------------------------------------------------
+   Lists
+   -------------------------------------------------------------------------- */
+ul, ol {
+    margin: var(--spacing-paragraph) 0;
+    padding-left: 1.5em;
+}
+
+li {
+    margin-bottom: 0.5em;
+}
+
+/* --------------------------------------------------------------------------
+   Horizontal Rules & Dividers
+   -------------------------------------------------------------------------- */
+hr {
+    border: none;
+    border-top: 1px solid var(--color-divider);
+    margin: var(--spacing-section) 0;
+}
+
+/* --------------------------------------------------------------------------
+   Code
+   -------------------------------------------------------------------------- */
+code {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 0.9em;
+    background: #f5f5f5;
+    padding: 0.1em 0.3em;
+    border-radius: 2px;
+}
+
+pre {
+    background: #f5f5f5;
+    padding: 1em;
+    overflow-x: auto;
+    font-size: 0.85em;
+    line-height: 1.4;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+
+pre code {
+    background: none;
+    padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Tables
+   -------------------------------------------------------------------------- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--spacing-paragraph) 0;
+    font-size: 0.9em;
+}
+
+th, td {
+    padding: 0.5em;
+    border-bottom: 1px solid var(--color-divider);
+    text-align: left;
+}
+
+th {
+    font-weight: 600;
+    border-bottom-width: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Utility Classes
+   -------------------------------------------------------------------------- */
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}

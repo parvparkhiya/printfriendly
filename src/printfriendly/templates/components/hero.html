@@ -1,0 +1,7 @@
+{# Hero Image Component #}
+<figure class="hero-image">
+    <img src="{{ image_src }}" alt="{{ image_alt | default('Article hero image', true) }}">
+    {% if caption %}
+    <figcaption>{{ caption }}</figcaption>
+    {% endif %}
+</figure>

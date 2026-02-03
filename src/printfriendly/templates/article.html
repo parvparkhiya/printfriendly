@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+
+    <!-- Embedded Fonts -->
+    <style>
+        /* Playfair Display - Display Serif */
+        @font-face {
+            font-family: 'Playfair Display';
+            src: url('file://{{ fonts_dir }}/PlayfairDisplay-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Playfair Display';
+            src: url('file://{{ fonts_dir }}/PlayfairDisplay-Bold.ttf') format('truetype');
+            font-weight: 700;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Playfair Display';
+            src: url('file://{{ fonts_dir }}/PlayfairDisplay-Italic.ttf') format('truetype');
+            font-weight: 400;
+            font-style: italic;
+        }
+
+        /* Source Serif 4 - Body Serif */
+        @font-face {
+            font-family: 'Source Serif 4';
+            src: url('file://{{ fonts_dir }}/SourceSerif4-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Source Serif 4';
+            src: url('file://{{ fonts_dir }}/SourceSerif4-Italic.ttf') format('truetype');
+            font-weight: 400;
+            font-style: italic;
+        }
+        @font-face {
+            font-family: 'Source Serif 4';
+            src: url('file://{{ fonts_dir }}/SourceSerif4-Light.ttf') format('truetype');
+            font-weight: 300;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Source Serif 4';
+            src: url('file://{{ fonts_dir }}/SourceSerif4-SemiBold.ttf') format('truetype');
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        /* Inter - Sans-serif for UI elements */
+        @font-face {
+            font-family: 'Inter';
+            src: url('file://{{ fonts_dir }}/Inter-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Inter';
+            src: url('file://{{ fonts_dir }}/Inter-Medium.ttf') format('truetype');
+            font-weight: 500;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Inter';
+            src: url('file://{{ fonts_dir }}/Inter-SemiBold.ttf') format('truetype');
+            font-weight: 600;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Inter';
+            src: url('file://{{ fonts_dir }}/Inter-Bold.ttf') format('truetype');
+            font-weight: 700;
+            font-style: normal;
+        }
+    </style>
+
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="file://{{ styles_dir }}/{{ style }}.css">
+</head>
+<body>
+    <!-- Hidden element for running header -->
+    <span class="source-name">{{ source_name }}</span>
+
+    <article class="article">
+        <!-- Article Header -->
+        <header class="article-header">
+            {% if kicker %}
+            <span class="kicker">{{ kicker }}</span>
+            {% endif %}
+
+            <h1 class="headline">{{ title }}</h1>
+
+            {% if subtitle %}
+            <p class="deck">{{ subtitle }}</p>
+            {% endif %}
+
+            <div class="byline">
+                {% if author %}
+                <span class="author">By {{ author }}</span>
+                {% endif %}
+                {% if author and date %}
+                <span class="separator">•</span>
+                {% endif %}
+                {% if date %}
+                <span class="date">{{ date }}</span>
+                {% endif %}
+                {% if reading_time %}
+                <span class="separator">•</span>
+                <span class="reading-time">{{ reading_time }} min read</span>
+                {% endif %}
+            </div>
+        </header>
+
+        <!-- Article Body -->
+        <div class="article-content">
+            {{ body_content | safe }}
+        </div>
+
+        <!-- Article Footer -->
+        {% if include_header_footer %}
+        <footer class="article-footer">
+            <p>
+                Originally published at
+                <a href="{{ source_url }}" class="source-link">{{ source_name }}</a>
+            </p>
+        </footer>
+        {% endif %}
+    </article>
+</body>
+</html>

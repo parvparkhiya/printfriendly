@@ -1,0 +1,70 @@
+[project]
+name = "printfriendly"
+version = "0.1.0"
+description = "Convert web newsletters into beautifully designed, magazine-quality A4 PDFs"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "PrintFriendly Team" }
+]
+keywords = ["pdf", "newsletter", "magazine", "typography", "weasyprint"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Text Processing :: Markup :: HTML",
+    "Topic :: Printing",
+]
+
+dependencies = [
+    "httpx>=0.25.0",
+    "readability-lxml>=0.8.1",
+    "beautifulsoup4>=4.12.0",
+    "lxml>=4.9.0",
+    "Pillow>=10.0.0",
+    "weasyprint>=60.0",
+    "typer>=0.9.0",
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "jinja2>=3.1.0",
+    "python-multipart>=0.0.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+printfriendly = "printfriendly.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/printfriendly/printfriendly"
+Documentation = "https://github.com/printfriendly/printfriendly#readme"
+Repository = "https://github.com/printfriendly/printfriendly"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/printfriendly"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

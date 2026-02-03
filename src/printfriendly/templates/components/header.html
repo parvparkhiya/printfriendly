@@ -1,0 +1,28 @@
+{# Article Header Component #}
+<header class="article-header">
+    {% if kicker %}
+    <span class="kicker">{{ kicker }}</span>
+    {% endif %}
+
+    <h1 class="headline">{{ title }}</h1>
+
+    {% if subtitle %}
+    <p class="deck">{{ subtitle }}</p>
+    {% endif %}
+
+    <div class="byline">
+        {% if author %}
+        <span class="author">By {{ author }}</span>
+        {% endif %}
+        {% if author and date %}
+        <span class="separator">•</span>
+        {% endif %}
+        {% if date %}
+        <span class="date">{{ date }}</span>
+        {% endif %}
+        {% if reading_time %}
+        <span class="separator">•</span>
+        <span class="reading-time">{{ reading_time }} min read</span>
+        {% endif %}
+    </div>
+</header>

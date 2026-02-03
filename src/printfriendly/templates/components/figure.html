@@ -1,0 +1,8 @@
+{# Figure/Image Component #}
+{# placement_type: hero, inset-right, inset-left, column-break, pull-aside #}
+<figure class="figure {{ placement_type | default('inset-right', true) }}">
+    <img src="{{ image_src }}" alt="{{ image_alt | default('Article image', true) }}">
+    {% if caption %}
+    <figcaption>{{ caption }}</figcaption>
+    {% endif %}
+</figure>

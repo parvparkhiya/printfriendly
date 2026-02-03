@@ -1,0 +1,253 @@
+/* ==========================================================================
+   PrintFriendly Minimal Style
+   Clean, simple layout focused on readability
+   ========================================================================== */
+
+@import url('./_base.css');
+
+/* --------------------------------------------------------------------------
+   Override Variables for Minimal Style
+   -------------------------------------------------------------------------- */
+:root {
+    --font-size-headline: 28pt;
+    --font-size-deck: 12pt;
+    --font-size-body: 11pt;
+    --font-size-pull-quote: 14pt;
+    --color-accent: #333333;
+    --line-height-body: 1.7;
+}
+
+/* --------------------------------------------------------------------------
+   Page Setup - Simplified margins
+   -------------------------------------------------------------------------- */
+@page {
+    size: A4;
+    margin: 25mm;
+
+    @top-left {
+        content: none;
+    }
+
+    @top-right {
+        content: "Page " counter(page);
+        font-family: 'Inter', sans-serif;
+        font-size: 8pt;
+        color: #999999;
+    }
+}
+
+@page :first {
+    @top-right {
+        content: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Article Header - Simplified
+   -------------------------------------------------------------------------- */
+.article-header {
+    margin-bottom: 2em;
+    text-align: left;
+}
+
+.kicker {
+    font-family: 'Inter', sans-serif;
+    font-size: 9pt;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #666666;
+    margin-bottom: 0.5em;
+}
+
+.headline {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: var(--font-size-headline);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-body);
+    margin-bottom: 0.5em;
+}
+
+.deck {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: var(--font-size-deck);
+    font-weight: 400;
+    line-height: 1.5;
+    color: #444444;
+    margin-bottom: 1em;
+}
+
+.byline {
+    font-family: 'Inter', sans-serif;
+    font-size: 9pt;
+    color: #666666;
+}
+
+.byline .author {
+    font-weight: 500;
+    color: var(--color-body);
+}
+
+.byline .separator {
+    margin: 0 0.5em;
+    color: #cccccc;
+}
+
+/* --------------------------------------------------------------------------
+   Body - Clean and Simple
+   -------------------------------------------------------------------------- */
+.article-body {
+    max-width: 100%;
+}
+
+.article-body p {
+    text-align: left;
+    hyphens: none;
+    margin-bottom: 1.2em;
+}
+
+/* No drop cap in minimal style */
+.drop-cap::first-letter,
+.article-body > p:first-of-type::first-letter {
+    float: none;
+    font-size: inherit;
+    line-height: inherit;
+    padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Section Headings - Understated
+   -------------------------------------------------------------------------- */
+.section-heading {
+    font-family: 'Inter', sans-serif;
+    font-size: 13pt;
+    font-weight: 600;
+    color: var(--color-body);
+    margin-top: 2em;
+    margin-bottom: 0.75em;
+}
+
+h2.section-heading {
+    font-size: 14pt;
+}
+
+h3.section-heading {
+    font-size: 12pt;
+}
+
+/* --------------------------------------------------------------------------
+   Section Dividers - Simple
+   -------------------------------------------------------------------------- */
+.section-divider {
+    text-align: center;
+    margin: 2em 0;
+    color: #cccccc;
+}
+
+.section-divider::before {
+    content: "* * *";
+    letter-spacing: 1em;
+}
+
+/* Hide the default content */
+.section-divider {
+    font-size: 0;
+}
+
+.section-divider::before {
+    font-size: 10pt;
+}
+
+/* --------------------------------------------------------------------------
+   Pull Quotes - Subtle
+   -------------------------------------------------------------------------- */
+.pull-quote {
+    margin: 1.5em 2em;
+    padding: 1em 0;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: left;
+}
+
+.pull-quote blockquote {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: var(--font-size-pull-quote);
+    font-style: italic;
+    line-height: 1.5;
+    color: #333333;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.pull-quote blockquote::before,
+.pull-quote blockquote::after {
+    content: none;
+}
+
+.pull-quote-decoration {
+    display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Images - Simple presentation
+   -------------------------------------------------------------------------- */
+.hero-image {
+    width: 100%;
+    margin: 1.5em 0;
+}
+
+.hero-image img {
+    width: 100%;
+    height: auto;
+}
+
+.figure.inset-right,
+.figure.inset-left {
+    float: none;
+    width: 100%;
+    margin: 1.5em 0;
+}
+
+.figure.column-break,
+.figure.pull-aside {
+    width: 100%;
+    margin: 1.5em 0;
+    float: none;
+}
+
+.figure img {
+    width: 100%;
+    height: auto;
+}
+
+figcaption {
+    font-size: 9pt;
+    color: #666666;
+    margin-top: 0.5em;
+}
+
+/* --------------------------------------------------------------------------
+   Article Footer
+   -------------------------------------------------------------------------- */
+.article-footer {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid #e0e0e0;
+    font-size: 9pt;
+    color: #666666;
+}
+
+/* --------------------------------------------------------------------------
+   Print Adjustments
+   -------------------------------------------------------------------------- */
+@media print {
+    body {
+        font-size: 11pt;
+    }
+
+    .article-body p {
+        text-align: justify;
+    }
+}
