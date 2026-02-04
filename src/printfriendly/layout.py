@@ -207,9 +207,38 @@ class LayoutComposer:
 
     def _create_figure(self, placement: ImagePlacement, soup: BeautifulSoup) -> Tag:
         """Create a figure element with appropriate placement class."""
-        # Map placement types to CSS classes
-        css_class = f"figure {placement.placement_type}"
+        # Handle paired images (two side by side)
+        if placement.placement_type == "paired" and placement.pair_with:
+            container = soup.new_tag("div", attrs={"class": "figure-pair"})
 
+            # First image
+            fig1 = soup.new_tag("figure", attrs={"class": "figure paired"})
+            img1 = soup.new_tag(
+                "img",
+                attrs={
+                    "src": placement.image.data_uri,
+                    "alt": placement.image.alt_text or "Article image",
+                },
+            )
+            fig1.append(img1)
+            container.append(fig1)
+
+            # Second image
+            fig2 = soup.new_tag("figure", attrs={"class": "figure paired"})
+            img2 = soup.new_tag(
+                "img",
+                attrs={
+                    "src": placement.pair_with.image.data_uri,
+                    "alt": placement.pair_with.image.alt_text or "Article image",
+                },
+            )
+            fig2.append(img2)
+            container.append(fig2)
+
+            return container
+
+        # Single figure (hero or centered)
+        css_class = f"figure {placement.placement_type}"
         figure = soup.new_tag("figure", attrs={"class": css_class})
 
         img = soup.new_tag(

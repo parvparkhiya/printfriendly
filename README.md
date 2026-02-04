@@ -59,8 +59,8 @@ PDFs are saved to the `output/` folder by default.
 ### Web Interface
 
 ```bash
-printfriendly serve
-# Open http://localhost:8000
+uvicorn printfriendly.web:app --host 127.0.0.1 --port 8000
+# Open http://127.0.0.1:8000
 ```
 
 ## Styles

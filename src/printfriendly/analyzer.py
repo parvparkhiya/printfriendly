@@ -28,8 +28,9 @@ class ImagePlacement:
     """Represents suggested image placement."""
 
     image: ExtractedImage
-    placement_type: str  # hero, inset-right, inset-left, full-width
+    placement_type: str  # hero, centered, paired
     paragraph_index: int  # Insert after which paragraph
+    pair_with: Optional["ImagePlacement"] = None  # For paired images
 
 
 @dataclass
@@ -246,7 +247,12 @@ class ContentAnalyzer:
     def _analyze_image_placements(
         self, images: list[ExtractedImage], paragraph_count: int
     ) -> list[ImagePlacement]:
-        """Determine optimal placement for each image."""
+        """Determine optimal placement for each image.
+
+        - First image is hero (full width at top)
+        - Square/vertical images are paired side-by-side when possible
+        - All images are centered (no text wrapping)
+        """
         if not images:
             return []
 
@@ -259,33 +265,61 @@ class ContentAnalyzer:
         else:
             spacing = 3
 
-        for idx, image in enumerate(images):
-            if idx == 0:
-                # First image is hero (full width at top)
-                placement_type = "hero"
-                position = 0
-            else:
-                # Determine placement type based on image aspect ratio and position
-                if image.is_landscape:
-                    # Landscape images work well as full-width breaks
-                    if idx % 3 == 0:
-                        placement_type = "full-width"
-                    else:
-                        placement_type = "inset-right" if idx % 2 == 1 else "inset-left"
-                else:
-                    # Portrait images should be inset
-                    placement_type = "inset-right" if idx % 2 == 1 else "inset-left"
-
-                # Calculate position - distribute evenly through the article
-                position = min(idx * spacing, paragraph_count - 1)
-
+        # Separate first image (hero) from rest
+        if images:
             placements.append(
                 ImagePlacement(
-                    image=image,
-                    placement_type=placement_type,
-                    paragraph_index=position,
+                    image=images[0],
+                    placement_type="hero",
+                    paragraph_index=0,
                 )
             )
+
+        # Process remaining images - pair square/vertical ones
+        remaining = images[1:]
+        idx = 0
+        position_counter = 1
+
+        while idx < len(remaining):
+            image = remaining[idx]
+            position = min(position_counter * spacing, paragraph_count - 1)
+
+            # Check if this is a square or vertical image
+            is_square_or_vertical = not image.is_landscape
+
+            # Try to pair with next image if both are square/vertical
+            if (
+                is_square_or_vertical
+                and idx + 1 < len(remaining)
+                and not remaining[idx + 1].is_landscape
+            ):
+                # Pair these two images
+                next_image = remaining[idx + 1]
+                placement = ImagePlacement(
+                    image=image,
+                    placement_type="paired",
+                    paragraph_index=position,
+                )
+                pair_placement = ImagePlacement(
+                    image=next_image,
+                    placement_type="paired",
+                    paragraph_index=position,
+                )
+                placement.pair_with = pair_placement
+                placements.append(placement)
+                idx += 2  # Skip the paired image
+            else:
+                # Single centered image
+                placements.append(
+                    ImagePlacement(
+                        image=image,
+                        placement_type="centered",
+                        paragraph_index=position,
+                    )
+                )
+                idx += 1
+
+            position_counter += 1
 
         return placements
 

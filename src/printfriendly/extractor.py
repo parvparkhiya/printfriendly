@@ -83,10 +83,10 @@ class ContentExtractor:
     ]
 
     # Image size limits
-    MAX_IMAGE_WIDTH = 1200
-    MAX_IMAGE_HEIGHT = 1600
+    MAX_IMAGE_WIDTH = 800
+    MAX_IMAGE_HEIGHT = 600
     MIN_IMAGE_WIDTH = 150
-    MIN_IMAGE_HEIGHT = 150
+    MIN_IMAGE_HEIGHT = 100
 
     def __init__(self, timeout: float = 30.0):
         """Initialize extractor with configurable timeout."""
@@ -102,9 +102,18 @@ class ContentExtractor:
                 follow_redirects=True,
                 headers={
                     "User-Agent": self.USER_AGENTS[0],
-                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/*,*/*;q=0.8",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
                     "Accept-Language": "en-US,en;q=0.9",
-                    "Accept-Encoding": "gzip, deflate",
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Cache-Control": "max-age=0",
+                    "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+                    "Sec-Ch-Ua-Mobile": "?0",
+                    "Sec-Ch-Ua-Platform": '"macOS"',
+                    "Sec-Fetch-Dest": "document",
+                    "Sec-Fetch-Mode": "navigate",
+                    "Sec-Fetch-Site": "none",
+                    "Sec-Fetch-User": "?1",
+                    "Upgrade-Insecure-Requests": "1",
                 },
             )
         return self._client
