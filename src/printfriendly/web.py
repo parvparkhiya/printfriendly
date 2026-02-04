@@ -54,9 +54,10 @@ class ConversionStatus(BaseModel):
 
 
 def generate_filename(url: str, title: Optional[str] = None) -> str:
-    """Generate a clean filename from URL or title."""
+    """Generate a clean ASCII filename from URL or title."""
     if title:
-        clean = "".join(c if c.isalnum() or c in " -_" else "" for c in title)
+        # Only allow ASCII alphanumeric characters and basic punctuation
+        clean = "".join(c if c.isascii() and (c.isalnum() or c in " -_") else "" for c in title)
         clean = clean.strip().replace(" ", "-")[:50]
         if clean:
             return f"{clean}.pdf"
@@ -64,7 +65,7 @@ def generate_filename(url: str, title: Optional[str] = None) -> str:
     parsed = urlparse(str(url))
     domain = parsed.netloc.replace("www.", "").split(".")[0]
     path = parsed.path.strip("/").split("/")[-1] if parsed.path else "article"
-    path = "".join(c if c.isalnum() or c in "-_" else "" for c in path)[:30]
+    path = "".join(c if c.isascii() and (c.isalnum() or c in "-_") else "" for c in path)[:30]
 
     return f"{domain}-{path}.pdf" if path else f"{domain}-article.pdf"
 
