@@ -1,0 +1,523 @@
+/* ==========================================================================
+   PrintFriendly Browser Edition - Print Styles
+   Adapted from Python backend styles for browser print/PDF generation
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   CSS Reset & Box Sizing (for print container)
+   -------------------------------------------------------------------------- */
+.print-container *, .print-container *::before, .print-container *::after,
+.preview-container *, .preview-container *::before, .preview-container *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Page Setup - A4 Dimensions
+   -------------------------------------------------------------------------- */
+@page {
+    size: A4;
+    margin: 20mm 25mm 20mm 15mm; /* top, outside, bottom, inside (binding) */
+}
+
+@page :first {
+    margin-top: 15mm;
+}
+
+/* --------------------------------------------------------------------------
+   Root Variables
+   -------------------------------------------------------------------------- */
+:root {
+    /* Colors */
+    --print-color-body: #1a1a1a;
+    --print-color-headline: #2c3e50;
+    --print-color-accent: #e74c3c;
+    --print-color-accent-alt: #3498db;
+    --print-color-caption: #666666;
+    --print-color-divider: #e0e0e0;
+    --print-color-background: #ffffff;
+    --print-color-quote-mark: #dddddd;
+
+    /* Typography Scale */
+    --print-font-size-kicker: 10pt;
+    --print-font-size-headline: 36pt;
+    --print-font-size-deck: 14pt;
+    --print-font-size-byline: 9pt;
+    --print-font-size-body: 11pt;
+    --print-font-size-pull-quote: 18pt;
+    --print-font-size-subheading: 14pt;
+    --print-font-size-caption: 8pt;
+
+    /* Line Heights */
+    --print-line-height-body: 1.6;
+    --print-line-height-headline: 1.1;
+    --print-line-height-deck: 1.4;
+
+    /* Spacing */
+    --print-spacing-paragraph: 1em;
+    --print-spacing-section: 2em;
+}
+
+/* --------------------------------------------------------------------------
+   Article Base Typography
+   -------------------------------------------------------------------------- */
+.article {
+    font-family: 'Source Serif 4', 'Source Serif Pro', Georgia, serif;
+    font-size: var(--print-font-size-body);
+    line-height: var(--print-line-height-body);
+    color: var(--print-color-body);
+    background: var(--print-color-background);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* --------------------------------------------------------------------------
+   Article Header
+   -------------------------------------------------------------------------- */
+.article-header {
+    margin-bottom: 2em;
+    text-align: left;
+}
+
+/* Kicker (Category/Topic) */
+.article-header .kicker {
+    font-family: 'Inter', sans-serif;
+    font-size: var(--print-font-size-kicker);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--print-color-accent);
+    margin-bottom: 0.75em;
+    display: block;
+}
+
+/* Main Headline */
+.article-header .headline {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: var(--print-font-size-headline);
+    font-weight: 700;
+    line-height: var(--print-line-height-headline);
+    color: var(--print-color-headline);
+    margin-bottom: 0.5em;
+    text-align: left;
+    letter-spacing: -0.02em;
+}
+
+/* Deck / Standfirst */
+.article-header .deck {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: var(--print-font-size-deck);
+    font-style: italic;
+    font-weight: 300;
+    line-height: var(--print-line-height-deck);
+    color: var(--print-color-body);
+    margin-bottom: 1.5em;
+    max-width: 90%;
+}
+
+/* Byline */
+.article-header .byline {
+    font-family: 'Inter', sans-serif;
+    font-size: var(--print-font-size-byline);
+    color: var(--print-color-caption);
+    margin-bottom: 1em;
+}
+
+.article-header .byline .author {
+    font-weight: 500;
+    color: var(--print-color-body);
+}
+
+.article-header .byline .separator {
+    color: var(--print-color-divider);
+    margin: 0 0.3em;
+}
+
+/* --------------------------------------------------------------------------
+   Article Body
+   -------------------------------------------------------------------------- */
+.article-body {
+    line-height: var(--print-line-height-body);
+}
+
+.article-body p {
+    margin-bottom: 1em;
+    text-align: justify;
+    hyphens: auto;
+    orphans: 3;
+    widows: 3;
+}
+
+.article-body p:last-child {
+    margin-bottom: 0;
+}
+
+/* Links */
+.article-body a {
+    color: var(--print-color-accent-alt);
+    text-decoration: underline;
+    text-decoration-color: rgba(52, 152, 219, 0.4);
+    text-underline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Drop Cap - Float-based fallback for browser compatibility
+   Browser does not support initial-letter widely, so we use float
+   -------------------------------------------------------------------------- */
+.article-body .drop-cap::first-letter {
+    float: left;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 3.5em;
+    line-height: 0.8;
+    font-weight: 700;
+    color: var(--print-color-headline);
+    padding-right: 0.1em;
+    padding-top: 0.1em;
+}
+
+/* --------------------------------------------------------------------------
+   Section Headings
+   -------------------------------------------------------------------------- */
+.section-heading {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    color: var(--print-color-headline);
+    margin-top: 1.8em;
+    margin-bottom: 0.8em;
+    break-after: avoid;
+    page-break-after: avoid;
+}
+
+h1.section-heading { font-size: 20pt; }
+h2.section-heading {
+    font-size: 16pt;
+    border-bottom: 2px solid var(--print-color-divider);
+    padding-bottom: 0.3em;
+}
+h3.section-heading { font-size: 13pt; }
+h4.section-heading,
+h5.section-heading,
+h6.section-heading {
+    font-size: 11pt;
+    font-style: italic;
+}
+
+/* --------------------------------------------------------------------------
+   Pull Quotes
+   -------------------------------------------------------------------------- */
+.pull-quote {
+    margin: 1.5em 0;
+    padding: 1.2em 1.5em;
+    border-left: 4px solid var(--print-color-accent);
+    background: linear-gradient(to right, rgba(231, 76, 60, 0.05), transparent);
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.pull-quote blockquote {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 14pt;
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--print-color-headline);
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Images & Figures
+   -------------------------------------------------------------------------- */
+.figure {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin: 1.5em auto;
+    text-align: center;
+}
+
+.figure img {
+    display: block;
+    margin: 0 auto;
+    max-height: 50mm;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+}
+
+.figure figcaption {
+    font-family: 'Inter', sans-serif;
+    font-size: 8pt;
+    font-style: italic;
+    color: var(--print-color-caption);
+    margin-top: 0.5em;
+    line-height: 1.3;
+    text-align: center;
+}
+
+/* Hero Image */
+.figure.hero {
+    width: 100%;
+    margin: 0 0 2em 0;
+}
+
+.figure.hero img {
+    width: 100%;
+    max-height: 50mm;
+    object-fit: contain;
+}
+
+/* Centered Image */
+.figure.centered {
+    width: auto;
+    max-width: 80%;
+    margin: 1.5em auto;
+}
+
+.figure.centered img {
+    max-width: 100%;
+    max-height: 50mm;
+}
+
+/* Paired Images */
+.figure-pair {
+    display: flex;
+    justify-content: center;
+    gap: 1em;
+    margin: 1.5em 0;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.figure.paired {
+    flex: 0 1 45%;
+    margin: 0;
+}
+
+.figure.paired img {
+    max-width: 100%;
+    max-height: 50mm;
+}
+
+/* --------------------------------------------------------------------------
+   Lists
+   -------------------------------------------------------------------------- */
+.article-body ul,
+.article-body ol {
+    margin: 1em 0 1em 1.5em;
+    padding: 0;
+}
+
+.article-body li {
+    margin-bottom: 0.5em;
+    text-align: left;
+}
+
+/* --------------------------------------------------------------------------
+   Blockquotes (regular quotes in content)
+   -------------------------------------------------------------------------- */
+.article-body > blockquote,
+.article-body blockquote:not(.pull-quote blockquote) {
+    margin: 1em 0 1em 1.5em;
+    padding-left: 1em;
+    border-left: 3px solid var(--print-color-divider);
+    font-style: italic;
+    color: #444;
+}
+
+/* --------------------------------------------------------------------------
+   Code blocks
+   -------------------------------------------------------------------------- */
+.article-body pre {
+    background: #f5f5f5;
+    padding: 1em;
+    margin: 1em 0;
+    overflow-x: auto;
+    font-size: 9pt;
+    line-height: 1.4;
+    border-radius: 4px;
+    break-inside: avoid;
+}
+
+.article-body code {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 0.9em;
+    background: #f5f5f5;
+    padding: 0.1em 0.3em;
+    border-radius: 2px;
+}
+
+.article-body pre code {
+    background: none;
+    padding: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Article Footer
+   -------------------------------------------------------------------------- */
+.article-footer {
+    margin-top: 3em;
+    padding-top: 1.5em;
+    border-top: 1px solid var(--print-color-divider);
+    font-family: 'Inter', sans-serif;
+    font-size: 9pt;
+    color: var(--print-color-caption);
+}
+
+.article-footer .source-link {
+    color: var(--print-color-accent-alt);
+}
+
+/* ==========================================================================
+   MINIMAL STYLE OVERRIDES
+   Applied when .style-minimal class is on .article
+   ========================================================================== */
+
+.article.style-minimal {
+    --print-font-size-headline: 28pt;
+    --print-font-size-deck: 12pt;
+    --print-font-size-pull-quote: 14pt;
+    --print-color-accent: #333333;
+    --print-line-height-body: 1.7;
+}
+
+.article.style-minimal .article-header .kicker {
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: #666666;
+}
+
+.article.style-minimal .article-header .headline {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--print-color-body);
+}
+
+.article.style-minimal .article-header .deck {
+    font-weight: 400;
+    font-style: normal;
+    line-height: 1.5;
+    color: #444444;
+}
+
+/* No drop cap in minimal style */
+.article.style-minimal .article-body .drop-cap::first-letter {
+    float: none;
+    font-size: inherit;
+    line-height: inherit;
+    padding: 0;
+    font-weight: inherit;
+}
+
+.article.style-minimal .article-body p {
+    text-align: left;
+    hyphens: none;
+    margin-bottom: 1.2em;
+}
+
+/* Minimal pull quotes */
+.article.style-minimal .pull-quote {
+    margin: 1.5em 2em;
+    padding: 1em 0;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    border-left: none;
+    background: none;
+    text-align: left;
+}
+
+.article.style-minimal .pull-quote blockquote {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: var(--print-font-size-pull-quote);
+    line-height: 1.5;
+    color: #333333;
+}
+
+/* Minimal section headings */
+.article.style-minimal .section-heading {
+    font-size: 13pt;
+    font-weight: 600;
+    color: var(--print-color-body);
+    margin-top: 2em;
+    margin-bottom: 0.75em;
+}
+
+.article.style-minimal h2.section-heading {
+    font-size: 14pt;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.article.style-minimal h3.section-heading {
+    font-size: 12pt;
+}
+
+/* ==========================================================================
+   PRINT-SPECIFIC RULES
+   ========================================================================== */
+
+@media print {
+    /* Hide app UI, show only print container */
+    .app-container {
+        display: none !important;
+    }
+
+    .print-container {
+        display: block !important;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background: white;
+    }
+
+    .print-container {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Force backgrounds to print */
+    .article {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .article-header {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .section-heading {
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    /* Ensure links don't show URLs (keep it clean) */
+    a[href]::after {
+        content: none !important;
+    }
+}
+
+/* ==========================================================================
+   SCREEN PREVIEW STYLES
+   For the preview container visible before printing
+   ========================================================================== */
+
+@media screen {
+    .print-container {
+        display: none;
+    }
+
+    .preview-container .article {
+        max-width: 210mm; /* A4 width */
+        margin: 0 auto;
+        padding: 15mm 25mm 20mm 15mm; /* Match print margins */
+        background: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        min-height: 297mm; /* A4 height */
+    }
+}

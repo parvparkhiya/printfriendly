@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrintFriendly - Browser Edition</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/print.css">
+</head>
+<body>
+    <!-- UI Container (hidden during print) -->
+    <div class="app-container" id="app-container">
+        <header class="app-header">
+            <h1>PrintFriendly</h1>
+            <p class="tagline">Convert newsletters to magazine-quality PDFs</p>
+            <p class="edition-badge">Browser Edition</p>
+        </header>
+
+        <main>
+            <div class="card">
+                <!-- Input Mode Tabs -->
+                <div class="input-tabs">
+                    <button type="button" class="tab-btn active" data-mode="url">URL</button>
+                    <button type="button" class="tab-btn" data-mode="html">Paste HTML</button>
+                </div>
+
+                <form id="convert-form">
+                    <!-- URL Input -->
+                    <div class="form-group" id="url-input-group">
+                        <label for="url">
+                            Article URL
+                            <span class="label-hint">- paste a newsletter or article link</span>
+                        </label>
+                        <input
+                            type="url"
+                            id="url"
+                            name="url"
+                            placeholder="https://newsletter.example.com/article"
+                        >
+                        <p class="input-note">Works with Substack, Medium, and most article pages</p>
+                    </div>
+
+                    <!-- HTML Paste Input -->
+                    <div class="form-group hidden" id="html-input-group">
+                        <label for="html-content">
+                            Page HTML
+                            <span class="label-hint">- paste the page source (Ctrl/Cmd+U)</span>
+                        </label>
+                        <textarea
+                            id="html-content"
+                            name="html-content"
+                            placeholder="<!DOCTYPE html>..."
+                            rows="6"
+                        ></textarea>
+                        <div class="form-group" style="margin-top: 0.75rem;">
+                            <label for="source-url">
+                                Source URL
+                                <span class="label-hint">- for attribution</span>
+                            </label>
+                            <input
+                                type="url"
+                                id="source-url"
+                                name="source-url"
+                                placeholder="https://example.com/article"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Options -->
+                    <div class="form-group">
+                        <div class="options">
+                            <div class="option-group">
+                                <h3>Layout Style</h3>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="style" value="magazine" checked>
+                                        Magazine
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="style" value="minimal">
+                                        Minimal
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="option-group">
+                                <h3>Options</h3>
+                                <div class="radio-group">
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="include_images" value="true" checked>
+                                        Include images
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="include_pull_quotes" value="true">
+                                        Pull quotes
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submit-btn">
+                        Generate Preview
+                    </button>
+                </form>
+
+                <!-- Loading State -->
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <span id="loading-message">Fetching article...</span>
+                </div>
+
+                <!-- Error State -->
+                <div class="error" id="error">
+                    <strong>Error:</strong> <span id="error-message"></span>
+                </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="preview-section hidden" id="preview-section">
+                <div class="preview-header">
+                    <h2>Preview</h2>
+                    <div class="preview-actions">
+                        <button type="button" id="print-btn" class="print-btn">
+                            Print / Save PDF
+                        </button>
+                        <button type="button" id="reset-btn" class="reset-btn">
+                            New Article
+                        </button>
+                    </div>
+                </div>
+                <div class="preview-container" id="preview-container">
+                    <!-- Article will be rendered here -->
+                </div>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <p>
+                PrintFriendly Browser Edition &middot;
+            </p>
+        </footer>
+    </div>
+
+    <!-- Print Container (shown only during print) -->
+    <div class="print-container" id="print-container">
+        <!-- Article content is cloned here for printing -->
+    </div>
+
+    <!-- Vendor Scripts -->
+    <script src="js/vendor/Readability.js"></script>
+
+    <!-- Application Scripts -->
+    <script src="js/extractor.js"></script>
+    <script src="js/analyzer.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
