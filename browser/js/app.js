@@ -13,6 +13,8 @@
     const loadingMessage = document.getElementById('loading-message');
     const error = document.getElementById('error');
     const errorMessage = document.getElementById('error-message');
+    const warningsPanel = document.getElementById('warnings-panel');
+    const warningsList = document.getElementById('warnings-list');
     const previewSection = document.getElementById('preview-section');
     const previewContainer = document.getElementById('preview-container');
     const printContainer = document.getElementById('print-container');
@@ -58,6 +60,7 @@
         loading.classList.add('active');
         loadingMessage.textContent = message;
         error.classList.remove('active');
+        hideWarnings();
         submitBtn.disabled = true;
     }
 
@@ -76,6 +79,32 @@
         errorMessage.textContent = message;
         error.classList.add('active');
         hideLoading();
+    }
+
+    /**
+     * Show non-fatal warnings/errors encountered during processing
+     */
+    function showWarnings(warnings) {
+        if (!warnings || warnings.length === 0) {
+            warningsPanel.classList.add('hidden');
+            warningsList.innerHTML = '';
+            return;
+        }
+        warningsList.innerHTML = '';
+        warnings.forEach(function(msg) {
+            const li = document.createElement('li');
+            li.textContent = msg;
+            warningsList.appendChild(li);
+        });
+        warningsPanel.classList.remove('hidden');
+    }
+
+    /**
+     * Hide warnings panel
+     */
+    function hideWarnings() {
+        warningsPanel.classList.add('hidden');
+        warningsList.innerHTML = '';
     }
 
     /**
@@ -108,6 +137,7 @@
         printContainer.innerHTML = '';
         form.reset();
         error.classList.remove('active');
+        hideWarnings();
         hideLoading();
         switchInputMode('url');
     }
@@ -163,13 +193,15 @@
             showLoading('Building layout...');
             const article = Layout.compose(analyzed, options);
 
-            // Step 5: Show preview
+            // Step 5: Show preview and any warnings
             hideLoading();
             showPreview(article);
+            showWarnings(extracted.warnings);
 
         } catch (err) {
             console.error('Processing error:', err);
             showError(err.message || 'An error occurred while processing the article');
+            hideWarnings();
         }
     }
 
@@ -213,5 +245,13 @@
 
     // Initialize
     switchInputMode('url');
+
+    // Display uncaught errors on the page
+    window.onerror = function(message, source, lineno, colno, err) {
+        const detail = err && err.message ? err.message : message;
+        const location = source ? ` (${source}:${lineno})` : '';
+        showError(detail + location);
+        return false; // allow default handling as well (e.g. console)
+    };
 
 })();

@@ -33,6 +33,7 @@ const Extractor = (function() {
             this.images = options.images || [];
             this.wordCount = options.wordCount || 0;
             this.readingTimeMinutes = options.readingTimeMinutes || 0;
+            this.warnings = options.warnings || [];
         }
     }
 
@@ -270,99 +271,139 @@ const Extractor = (function() {
      * Convert image URL to base64 data URI via CORS proxy
      * Tries all available proxies, then direct fetch as fallback
      */
-    async function imageToDataUri(imgUrl, baseUrl) {
+    async function imageToDataUri(imgUrl, baseUrl, onReportError) {
         const absoluteUrl = new URL(imgUrl, baseUrl).href;
 
-        // Try each CORS proxy, then direct fetch as last resort
+        // Race all CORS proxies + direct fetch in parallel
         const fetchUrls = [
             ...CORS_PROXIES.map(fn => fn(absoluteUrl)),
             absoluteUrl
         ];
 
-        for (const fetchUrl of fetchUrls) {
-            try {
-                const response = await fetch(fetchUrl);
-                if (!response.ok) continue;
-
-                const blob = await response.blob();
-                return await processImageBlob(blob);
-            } catch (err) {
-                // Try next source
-                continue;
-            }
+        try {
+            return await Promise.any(
+                fetchUrls.map(url =>
+                    fetch(url, {
+                        headers: { 'Accept': 'image/*,*/*' }
+                    })
+                        .then(r => {
+                            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                            const type = (r.headers.get('content-type') || '').toLowerCase();
+                            if (type.startsWith('text/') || type.startsWith('application/json')) throw new Error(`Not an image: ${type}`);
+                            return r.blob();
+                        })
+                        .then(blob => {
+                            const blobType = (blob.type || '').toLowerCase();
+                            if (blobType.startsWith('text/') || blobType === 'application/json') {
+                                throw new Error(`Server returned ${blob.type || 'non-image'} (possible error page or hotlink protection)`);
+                            }
+                            return processImageBlob(blob);
+                        })
+                )
+            );
+        } catch (err) {
+            const reason = err.message || '';
+            const msg = reason.includes('hotlink') || reason.includes('error page')
+                ? `Failed to load image: ${imgUrl} — ${reason}`
+                : `Failed to load image: ${imgUrl}`;
+            console.warn(msg, err);
+            if (typeof onReportError === 'function') onReportError(msg);
+            return null;
         }
-
-        console.warn(`Failed to process image ${imgUrl}: all sources failed`);
-        return null;
     }
 
     /**
      * Extract and process images from article content
+     * @param {string} htmlContent
+     * @param {string} baseUrl
+     * @param {function} onProgress
+     * @param {function} onReportError - optional, called with (message) for each non-fatal error
      */
-    async function extractImages(htmlContent, baseUrl, onProgress) {
+    async function extractImages(htmlContent, baseUrl, onProgress, onReportError) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlContent, 'text/html');
 
         const imgElements = doc.querySelectorAll('img[src]');
         const images = [];
 
-        let processed = 0;
-        const total = imgElements.length;
+        // Separate data URI images (fast) from URL images (need fetching)
+        const dataUriImgs = [];
+        const urlImgs = [];
 
         for (const img of imgElements) {
-            processed++;
-            if (onProgress) {
-                onProgress(`Processing images (${processed}/${total})...`);
-            }
-
             const src = img.getAttribute('src');
-            if (!src) {
-                continue;
+            if (!src) continue;
+
+            if (src.startsWith('data:')) {
+                dataUriImgs.push(img);
+            } else {
+                // Skip tracking pixels and icons
+                const width = parseInt(img.getAttribute('width') || '0', 10);
+                const height = parseInt(img.getAttribute('height') || '0', 10);
+                if ((width > 0 && width < MIN_IMAGE_SIZE) ||
+                    (height > 0 && height < MIN_IMAGE_SIZE)) {
+                    continue;
+                }
+                urlImgs.push(img);
+            }
+        }
+
+        // Process data URI images first (no network, fast)
+        for (const img of dataUriImgs) {
+            if (images.length >= 10) break;
+            const src = img.getAttribute('src');
+            try {
+                const dims = await getDataUriDimensions(src);
+                if (dims && dims.width >= MIN_IMAGE_SIZE && dims.height >= MIN_IMAGE_SIZE) {
+                    images.push(new ExtractedImage({
+                        dataUri: src,
+                        altText: img.getAttribute('alt') || '',
+                        caption: '',
+                        width: dims.width,
+                        height: dims.height
+                    }));
+                }
+            } catch (e) {
+                // Skip invalid data URIs
+            }
+        }
+
+        // Fetch URL images in parallel batches of 4; try all candidates until we have enough (many may fail due to CORS etc.)
+        const BATCH_SIZE = 4;
+        const maxImages = 10;
+        const maxToAttempt = 50; // cap attempts so we don't hammer proxies on image-heavy pages
+        const toFetch = urlImgs.slice(0, maxToAttempt);
+        let processed = 0;
+
+        for (let i = 0; i < toFetch.length && images.length < maxImages; i += BATCH_SIZE) {
+            const batch = toFetch.slice(i, i + BATCH_SIZE);
+            if (onProgress) {
+                onProgress(`Processing images (${processed + batch.length}/${toFetch.length} attempted, ${images.length} included)...`);
             }
 
-            // Handle data URI images directly (common in newsletters with inlined images)
-            if (src.startsWith('data:')) {
-                try {
-                    const dims = await getDataUriDimensions(src);
-                    if (dims && dims.width >= MIN_IMAGE_SIZE && dims.height >= MIN_IMAGE_SIZE) {
-                        images.push(new ExtractedImage({
-                            dataUri: src,
+            const results = await Promise.all(
+                batch.map(async (img) => {
+                    const src = img.getAttribute('src');
+                    const result = await imageToDataUri(src, baseUrl, onReportError);
+                    if (result) {
+                        return new ExtractedImage({
+                            dataUri: result.dataUri,
                             altText: img.getAttribute('alt') || '',
                             caption: '',
-                            width: dims.width,
-                            height: dims.height
-                        }));
+                            width: result.width,
+                            height: result.height
+                        });
                     }
-                } catch (e) {
-                    // Skip invalid data URIs
-                }
-                if (images.length >= 10) break;
-                continue;
-            }
+                    return null;
+                })
+            );
 
-            // Skip tracking pixels and icons
-            const width = parseInt(img.getAttribute('width') || '0', 10);
-            const height = parseInt(img.getAttribute('height') || '0', 10);
-            if ((width > 0 && width < MIN_IMAGE_SIZE) ||
-                (height > 0 && height < MIN_IMAGE_SIZE)) {
-                continue;
-            }
-
-            const result = await imageToDataUri(src, baseUrl);
-            if (result) {
-                images.push(new ExtractedImage({
-                    dataUri: result.dataUri,
-                    altText: img.getAttribute('alt') || '',
-                    caption: '', // Will be filled from figcaption if available
-                    width: result.width,
-                    height: result.height
-                }));
-
-                // Limit to reasonable number of images
-                if (images.length >= 10) {
-                    break;
+            for (const result of results) {
+                if (result && images.length < maxImages) {
+                    images.push(result);
                 }
             }
+            processed += batch.length;
         }
 
         return images;
@@ -413,11 +454,17 @@ const Extractor = (function() {
         // Extract metadata
         const metadata = extractMetadata(article.originalDoc, article, url);
 
+        // Collect non-fatal errors to display on the page
+        const warnings = [];
+        function reportError(msg) {
+            warnings.push(msg);
+        }
+
         // Extract and process images (skip if not needed)
         let images = [];
         if (options.includeImages !== false) {
             if (onProgress) onProgress('Processing images...');
-            images = await extractImages(article.content, url, onProgress);
+            images = await extractImages(article.content, url, onProgress, reportError);
         }
 
         // Calculate reading metrics
@@ -433,7 +480,8 @@ const Extractor = (function() {
             sourceUrl: metadata.sourceUrl,
             images: images,
             wordCount: metrics.wordCount,
-            readingTimeMinutes: metrics.readingTimeMinutes
+            readingTimeMinutes: metrics.readingTimeMinutes,
+            warnings: warnings
         });
     }
 
