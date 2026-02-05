@@ -2,6 +2,14 @@
 
 Convert web newsletters into beautifully designed, magazine-quality A4 PDFs.
 
+## Browser Edition
+
+The hosted version at [parvparkhiya.github.io/printfriendly](https://parvparkhiya.github.io/printfriendly/) works entirely client-side — paste a URL or HTML, pick a style, and print to PDF. No backend required.
+
+## Desktop Edition
+
+For local PDF generation via WeasyPrint with embedded fonts, follow the setup below.
+
 ## Prerequisites
 
 ### macOS
