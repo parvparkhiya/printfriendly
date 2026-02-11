@@ -32,6 +32,9 @@
     // Current input mode
     let inputMode = 'url';
 
+    // Thinking verbs cycling
+    let thinkingInterval = null;
+
     /**
      * Switch between URL and HTML input modes
      */
@@ -54,14 +57,45 @@
     }
 
     /**
+     * Get a random thinking verb
+     */
+    function getRandomVerb() {
+        const idx = Math.floor(Math.random() * THINKING_VERBS.length);
+        return THINKING_VERBS[idx] + '...';
+    }
+
+    /**
+     * Start cycling thinking verbs every second
+     */
+    function startThinkingVerbs() {
+        stopThinkingVerbs();
+        loadingMessage.textContent = getRandomVerb();
+        thinkingInterval = setInterval(() => {
+            loadingMessage.textContent = getRandomVerb();
+        }, 1000);
+    }
+
+    /**
+     * Stop cycling thinking verbs
+     */
+    function stopThinkingVerbs() {
+        if (thinkingInterval) {
+            clearInterval(thinkingInterval);
+            thinkingInterval = null;
+        }
+    }
+
+    /**
      * Show loading state
      */
-    function showLoading(message = 'Processing...') {
+    function showLoading() {
         loading.classList.add('active');
-        loadingMessage.textContent = message;
         error.classList.remove('active');
         hideWarnings();
         submitBtn.disabled = true;
+        if (!thinkingInterval) {
+            startThinkingVerbs();
+        }
     }
 
     /**
@@ -70,6 +104,7 @@
     function hideLoading() {
         loading.classList.remove('active');
         submitBtn.disabled = false;
+        stopThinkingVerbs();
     }
 
     /**
@@ -180,17 +215,13 @@
             }
 
             // Step 2: Extract content
-            showLoading('Fetching article...');
-            const extracted = await Extractor.extract(input, sourceUrl, (msg) => {
-                loadingMessage.textContent = msg;
-            }, { includeImages: options.includeImages });
+            showLoading();
+            const extracted = await Extractor.extract(input, sourceUrl, () => {}, { includeImages: options.includeImages });
 
             // Step 3: Analyze content
-            showLoading('Analyzing structure...');
             const analyzed = Analyzer.analyze(extracted, options.includePullQuotes ? 3 : 0);
 
             // Step 4: Compose layout
-            showLoading('Building layout...');
             const article = Layout.compose(analyzed, options);
 
             // Step 5: Show preview and any warnings
