@@ -10,7 +10,7 @@ import io
 import re
 from dataclasses import dataclass, field
 from typing import Optional
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse, urlunparse
 
 import httpx
 from bs4 import BeautifulSoup
@@ -230,10 +230,11 @@ class ContentExtractor:
             # Resolve relative URLs
             full_url = urljoin(base_url, src)
 
-            # Skip duplicates
-            if full_url in seen_urls:
+            # Skip duplicates — normalise URL to ignore CDN transform params
+            url_key = self._url_dedup_key(full_url)
+            if url_key in seen_urls:
                 continue
-            seen_urls.add(full_url)
+            seen_urls.add(url_key)
 
             # Skip tracking pixels, icons, avatars, logos
             if self._is_non_content_image(full_url, img):
@@ -251,6 +252,17 @@ class ContentExtractor:
                 print(f"Warning: Could not process image {full_url}: {e}")
 
         return images
+
+    def _url_dedup_key(self, url: str) -> str:
+        """Return a normalised URL key for deduplication.
+
+        CDN services (Beehiiv, Substack, Cloudflare Images, etc.) serve the
+        same asset at multiple URLs that differ only in transformation query
+        params like width=, quality=, format=, fit=.  Strip the query string
+        so we treat all variants of the same image as duplicates.
+        """
+        parsed = urlparse(url)
+        return urlunparse((parsed.scheme, parsed.netloc, parsed.path, "", "", ""))
 
     def _is_non_content_image(self, url: str, img) -> bool:
         """Check if an image is likely not content (avatar, icon, etc.)."""

@@ -187,7 +187,11 @@ class LayoutComposer:
         return str(article_body)
 
     def _clone_element(self, elem: Tag, soup: BeautifulSoup) -> Tag:
-        """Deep clone an element, preserving all children and attributes."""
+        """Deep clone an element, preserving all children and attributes.
+
+        Strips <img> and <figure> tags from cloned content — images are handled
+        exclusively via image_placements to prevent duplicates.
+        """
         # Create a copy of the element
         new_elem = soup.new_tag(elem.name)
 
@@ -200,6 +204,9 @@ class LayoutComposer:
             if isinstance(child, str):
                 new_elem.append(soup.new_string(child))
             elif hasattr(child, 'name'):
+                # Skip inline images and figures — image_placements handles all images
+                if child.name in ('img', 'figure'):
+                    continue
                 # Recursively clone child elements
                 new_elem.append(self._clone_element(child, soup))
 
